@@ -1,0 +1,30 @@
+services:
+  fe-db:
+    image: postgres:16.3-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file: .env
+    container_name: fe-db
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - ${DB_EXPOSE_PORT}:${DB_PORT}
+
+  fe-service:
+    build:
+      context: .
+      target: dev
+    container_name: fe-service
+    volumes:
+      - .:/opt/app
+    command: bash -c "npm run start:dev"
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - fe-db
+      
+volumes:
+  db:
+    driver: local
